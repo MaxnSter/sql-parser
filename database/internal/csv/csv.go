@@ -8,7 +8,6 @@ import (
 	"github.com/schollz/progressbar"
 	"gopkg.in/src-d/go-mysql-server.v0/sql"
 	"io"
-	"time"
 )
 
 type db struct {
@@ -53,7 +52,6 @@ type table struct {
 }
 
 func buildTable(builder database.TableBuilder) (sql.Table, error) {
-	time.Sleep(time.Second)
 	name, r, err := builder()
 	if err != nil {
 		return nil, err

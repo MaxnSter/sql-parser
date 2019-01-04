@@ -3,6 +3,7 @@ package sql_server
 import (
 	"bytes"
 	"fmt"
+	"github.com/MaxnSter/sql-parser/cache/model"
 	"github.com/MaxnSter/sql-parser/database"
 	_ "github.com/MaxnSter/sql-parser/database/impl"
 	"github.com/pkg/errors"
@@ -97,15 +98,24 @@ func parseDir(dir, fileType string) ([]database.TableBuilder, error) {
 			continue
 		}
 
-		ts = append(ts, func() (table string, r io.ReadCloser, err error) {
-			table = strings.TrimSuffix(f.Name(), "."+fileType)
-			file, err := os.Open(path.Join(dir, f.Name()))
+		table := strings.TrimSuffix(f.Name(), "."+fileType)
+		filePath := path.Join(dir, f.Name())
+		fd, err := os.Open(filePath)
+		if err != nil {
+			return nil, errors.Wrapf(err, "open file:%s", filePath)
+		}
+		Id, err := model.CreateTableCache(table, fd)
+		if err != nil {
+			return nil, errors.Wrapf(err, "create cache for file:%s", filePath)
+		}
+
+		ts = append(ts, func() (string, io.ReadCloser, error) {
+			c, err := model.GetTableCache(Id)
 			if err != nil {
-				return "", nil, errors.Wrapf(err, "open file:%s", path.Join(dir, f.Name()))
+				return "", nil, err
 			}
 
-			r = file
-			return
+			return table, c, nil
 		})
 	}
 
