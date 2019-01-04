@@ -25,7 +25,7 @@ func init() {
 	box = BoxForTable(b)
 }
 
-func CreateTableCache(name string, rc io.ReadCloser) (Id uint64, err error) {
+func CreateTableCache(name string, rc io.Reader) (Id uint64, err error) {
 	t := &Table{
 		Name: name,
 	}
@@ -33,7 +33,6 @@ func CreateTableCache(name string, rc io.ReadCloser) (Id uint64, err error) {
 	b := cache.Get()
 	defer cache.Put(b)
 	io.Copy(b, rc)
-	rc.Close()
 
 	t.data = append(t.data, b.Bytes()...)
 	return box.Put(t)

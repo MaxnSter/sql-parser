@@ -105,6 +105,7 @@ func parseDir(dir, fileType string) ([]database.TableBuilder, error) {
 			return nil, errors.Wrapf(err, "open file:%s", filePath)
 		}
 		Id, err := model.CreateTableCache(table, fd)
+		fd.Close()
 		if err != nil {
 			return nil, errors.Wrapf(err, "create cache for file:%s", filePath)
 		}
